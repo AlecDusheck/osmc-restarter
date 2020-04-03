@@ -13,14 +13,20 @@ const args = process.argv.slice(2);
 
 const PORT = Number.parseInt(args[0]); // Get the PORT
 const SCRIPT = args[1]; // Get the SCRIPT path to run
-const RETRIES = args[2] || 8;
-const PING_TIME = args[3] || 20;
+const RETRIES = Number.parseInt(args[2]) || 8;
+const PING_TIME = Number.parseInt(args[3]) || 20;
 
 if (Number.isNaN(PORT) || PORT < 1000 || PORT > 75565) {
     logError('Invalid PORT');
     process.exit(1);
 } else if (!SCRIPT) {
     logError('No SCRIPT specified');
+    process.exit(1);
+} else if (Number.isNaN(RETRIES)) {
+    logError('Invalid RETRIES');
+    process.exit(1);
+} else if (Number.isNaN(PING_TIME)) {
+    logError('Invalid PING_TIME');
     process.exit(1);
 }
 
