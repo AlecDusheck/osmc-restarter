@@ -9,26 +9,20 @@ const logMsg = (str) => console.log(chalk.blue(`Watchdog: (*) ${str}`));
 const logChild = (str) => console.log(chalk.yellow(`Child (PID: ${child.pid}): ${str}`));
 
 clear(); // Clear the screen
-const args = process.argv.slice(2);
 
-const PORT = Number.parseInt(args[0]); // Get the PORT
-const SCRIPT = args[1]; // Get the SCRIPT path to run
-const RETRIES = Number.parseInt(args[2]) || 8;
-const PING_TIME = Number.parseInt(args[3]) || 20;
+const args = require('minimist')(process.argv.slice(2));
 
-if (Number.isNaN(PORT) || PORT < 1000 || PORT > 75565) {
-    logError('Invalid PORT');
-    process.exit(1);
-} else if (!SCRIPT) {
-    logError('No SCRIPT specified');
-    process.exit(1);
-} else if (Number.isNaN(RETRIES)) {
-    logError('Invalid RETRIES');
-    process.exit(1);
-} else if (Number.isNaN(PING_TIME)) {
-    logError('Invalid PING_TIME');
-    process.exit(1);
-}
+const SCRIPT = args._.join(' ');
+const PORT = args.port || 25565;
+const RETRIES = args.retries || 8;
+const PING_TIME = args.pingTime || 20;
+
+logMsg(`Start Configuration:
+Script: ${SCRIPT}
+Port: ${PORT}
+Retries: ${RETRIES}
+Ping Time: ${PING_TIME}
+`);
 
 let child; // The child process
 let running = false;
