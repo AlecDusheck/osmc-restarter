@@ -11,14 +11,16 @@ const logChild = (str) => console.log(chalk.yellow(`Child (PID: ${child.pid}): $
 clear(); // Clear the screen
 const args = process.argv.slice(2);
 
-const port = Number.parseInt(args[0]); // Get the port
-const script = args[1]; // Get the script path to run
+const PORT = Number.parseInt(args[0]); // Get the PORT
+const SCRIPT = args[1]; // Get the SCRIPT path to run
+const RETRIES = args[2] || 8;
+const PING_TIME = args[3] || 20;
 
-if (Number.isNaN(port) || port < 1000 || port > 75565) {
-    logError('Invalid port');
+if (Number.isNaN(PORT) || PORT < 1000 || PORT > 75565) {
+    logError('Invalid PORT');
     process.exit(1);
-} else if (!script) {
-    logError('No script specified');
+} else if (!SCRIPT) {
+    logError('No SCRIPT specified');
     process.exit(1);
 }
 
@@ -45,7 +47,7 @@ const spawnProcess = async () => {
     }
 
     // Create child
-    child = spawn(script);
+    child = spawn(SCRIPT);
 
     child.on('error', err => {
         logError(err);
@@ -79,7 +81,7 @@ const spawnProcess = async () => {
 // Bootstrap the process
 spawnProcess();
 
-// Start pinging MC servers on that port
+// Start pinging MC servers on that PORT
 setInterval(async () => {
     if (!running || !child) { // Make sure the server is running
         return;
@@ -90,7 +92,7 @@ setInterval(async () => {
         await gamedig.query({
             type: 'minecraft',
             host: 'localhost',
-            port: port
+            port: PORT
         });
 
         // Reset counter after a successful attempt
@@ -98,7 +100,7 @@ setInterval(async () => {
         failed = 0;
     } catch (e) {
         // We failed, yikes
-        if (failed >= 9) { // Restart server after 8 attempts
+        if (failed >= (RETRIES + 1)) { // Restart server after 8 attempts
             logError('Force restarting server');
             failed = 0;
 
@@ -106,8 +108,8 @@ setInterval(async () => {
         } else {
             // Just increment the failed counter
             failed++;
-            logError('Failed to ping server! (' + failed + '/8)');
+            logError(`Failed to ping server! (${failed}/${RETRIES})`);
         }
     }
 
-}, 2 * 1000); // Every 20 secs
+}, PING_TIME * 1000);
