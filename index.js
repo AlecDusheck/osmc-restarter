@@ -105,8 +105,12 @@ setInterval(async () => {
         logMsg('Pinged server!');
         failed = 0;
     } catch (e) {
+        if (!running || !child) { // Make sure the server is running, again!
+            return;
+        }
+
         // We failed, yikes
-        if (failed >= (RETRIES + 1)) { // Restart server after 8 attempts
+        if (failed >= RETRIES) { // Restart server after 8 attempts
             logError('Force restarting server');
             failed = 0;
 
