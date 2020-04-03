@@ -4,15 +4,15 @@ const spawn = require('child_process').spawn;
 const gamedig = require('gamedig');
 
 // Logging functions
-const logError = (str) => console.log(chalk.red(`Watchdog: (!) ${str}`));
-const logMsg = (str) => console.log(chalk.blue(`Watchdog: (*) ${str}`));
+const logError = (str) => console.log(chalk.red(`Watchdog: ${str}`));
+const logMsg = (str) => console.log(chalk.blue(`Watchdog: ${str}`));
 const logChild = (str) => console.log(chalk.yellow(`Child (PID: ${child.pid}): ${str}`));
 
 clear(); // Clear the screen
 
 const args = require('minimist')(process.argv.slice(2));
 
-const SCRIPT = args._.join(' ');
+const SCRIPT = args._.join(' '); // Join just in case some weird stuff happens
 const PORT = args.port || 25565;
 const RETRIES = args.retries || 8;
 const PING_TIME = args.pingTime || 20;
