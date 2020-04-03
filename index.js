@@ -28,7 +28,8 @@ let failed = 0;
 const spawnProcess = async () => {
     // If the child is running, kill it and wait 5 seconds
     if (child) {
-        if (!child.killed) {
+        console.log(child.exitCode);
+        if (child.exitCode === null) {
             logMsg('Previous unstopped child process detected (how?)... sending SIGKILL');
             child.kill('SIGKILL');
 
@@ -59,7 +60,7 @@ const spawnProcess = async () => {
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', data => logError(data));
 
-    child.on('close', async () => {
+    child.on('exit', async () => {
         logError('Process ended. Rebooting server!');
         await new Promise(resolve => {
             setTimeout(() => resolve(), 5000);
