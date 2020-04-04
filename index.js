@@ -34,7 +34,11 @@ const spawnProcess = async () => {
     if (child) {
         if (child.exitCode === null) {
             logMsg('Previous unstopped child process detected (how?)... sending SIGKILL');
-            process.kill(-child.pid, 'SIGKILL');
+            try {
+                process.kill(-child.pid, 'SIGKILL');
+            } catch (e) {
+                logMsg('It appears the process is dead, skipping');
+            }
 
             await new Promise(resolve => {
                 setTimeout(() => resolve(), 5000);
@@ -61,7 +65,7 @@ const spawnProcess = async () => {
 
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', data => {
-        logChild(data);
+        // logChild(data);
 
         if (!running) {
             running = true;
