@@ -34,7 +34,7 @@ const spawnProcess = async () => {
     if (child) {
         if (child.exitCode === null) {
             logMsg('Previous unstopped child process detected (how?)... sending SIGKILL');
-            child.kill('SIGKILL');
+            process.kill(-child.pid, 'SIGKILL');
 
             await new Promise(resolve => {
                 setTimeout(() => resolve(), 5000);
@@ -47,7 +47,12 @@ const spawnProcess = async () => {
     }
 
     // Create child
-    child = spawn(SCRIPT);
+    const spawnOpts = { 'detached' : true // Allows killing of all of child's descendants.
+        // http://azimi.me/2014/12/31/kill-child_process-node-js.html
+        // https://github.com/nodejs/node-v0.x-archive/issues/1811
+    };
+
+    child = spawn(SCRIPT, [SCRIPT], spawnOpts);
 
     child.on('error', err => {
         logError(err);
@@ -108,7 +113,7 @@ setInterval(async () => {
             logError('Force restarting server');
             failed = 0;
 
-            child.kill('SIGKILL'); // Kill the process, we hung
+            process.kill(-child.pid, 'SIGKILL'); // Kill the process, we hung
         } else {
             // Just increment the failed counter
             failed++;
